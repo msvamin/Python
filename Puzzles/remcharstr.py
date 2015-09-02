@@ -9,8 +9,8 @@ def remcharstr(my_str, my_char):
     return res
 
 def main():
-    my_str = raw_input("Enter your string: ")
-    my_char = raw_input("Enter your character: ")
+    my_str = input("Enter your string: ")
+    my_char = input("Enter your character: ")
     print(remcharstr(my_str, my_char))
 
 if __name__ == "__main__":
