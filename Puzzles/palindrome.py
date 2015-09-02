@@ -2,8 +2,6 @@ __author__ = 'amin'
 
 import sys
 
-
-
 def main():
     my_str = input("Enter your string: ")
     # Check for palindrome strings
