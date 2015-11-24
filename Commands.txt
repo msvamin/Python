@@ -1,0 +1,67 @@
+---------------------------------------------
+Summary of useful commands in Python
+---------------------------------------------
+
+str.lower()
+str.upper()
+str.capitalize()
+str.find()
+str.strip()
+str.replace()
+str.lstrip()       	left strip
+str.rstrip()		right strip
+str.strip()		right & left strip
+str.split()
+line.startswith('..')
+
+type(var)
+dir(var)
+sorted()
+
+range(5)   => [0,1,2,3,4]
+
+---------------------------
+Reading files
+---------------------------
+
+fl = open('myfile.txt')
+for line in fl:			Reading line by line
+	print line
+
+fr = fl.read()		Read all file at once
+
+strings and tuples are not immutable
+lists are mutable
+
+tuples are less flexible but are more efficient
+(a,b)=(9,44)
+
+(0,1,2) < (5,1,-1)	copmare first then second and ...
+
+-----------------------------
+dictionaries
+-----------------------------
+
+dd = dict()
+keyname in dd
+dd.get(keyname, v)	it adds the key to dict and v is the default value if the key does not exist
+
+useful for counting the number of words in a text
+counts = dict()
+for word in words:
+	count[word] = counts.get(word,0)+1
+
+for key in dd:		loop over dict
+
+print list(dd)		print keys
+print dd.keys()
+
+print dd.values()	print values
+
+print dd.items()	print key/value as tuples
+for a,b in dd.items():
+
+tuples cannot be sorted, but the list of tuples can be sorted
+tmp = list()
+for k,v in dd.items():
+	tmp.append((k,v))
