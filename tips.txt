@@ -278,4 +278,69 @@ yield statement pauses the function saving all its states and later continues fr
 
 Closures
 ------------
-data attached to the code		
+data attached to the code	
+-We must have a nested function (function inside a function).
+-The nested function must refer to a value defined in the enclosing function.
+-The enclosing function must return the nested function.
+
+def make_multiplier_of(n):
+    def multiplier(x):
+        return x * n
+    return multiplier
+>>> times3 = make_multiplier_of(3)
+>>> times5 = make_multiplier_of(5)
+
+>>> times3(9)
+27
+>>> times5(3)
+15
+
+
+Decorators
+-------------
+def make_pretty(func):
+    def inner():
+        print("I got decorated")
+        func()
+    return inner
+
+def ordinary():
+    print("I am ordinary")
+
+
+def smart_divide(func):
+    def inner(a,b):
+        print("I am going to divide",a,"and",b)
+        if b == 0:
+            print("Whoops! cannot divide")
+            return
+
+        return func(a,b)
+    return inner
+
+@smart_divide
+def divide(a,b):
+    return a/b
+
+Property
+---------------
+class Celsius:
+    def __init__(self, temperature = 0):
+        self._temperature = temperature
+
+    def to_fahrenheit(self):
+        return (self.temperature * 1.8) + 32
+
+    @property
+    def temperature(self):
+        print("Getting value")
+        return self._temperature
+
+    @temperature.setter
+    def temperature(self, value):
+        if value < -273:
+            raise ValueError("Temperature below -273 is not possible")
+        print("Setting value")
+        self._temperature = value
+
+	
