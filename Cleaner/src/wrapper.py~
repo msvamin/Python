@@ -1,0 +1,97 @@
+__author__ = 'Amin'
+
+"""
+This function takes the list of run IDs and generates the runQA2 report
+Filename: wrapper.py
+Author: Amin Mousavi
+Date: 12/1/2015
+"""
+
+import DigestJava
+import ReportJava
+import requests
+import json
+import os
+import time
+import logging
+import time
+
+def store_experiment_state(run_id, run_state_id, state_id, username_id):
+
+    token_request = dict()
+    token_request = {"experimentId": run_id ,"experimentStateList_id": run_state_id, "state": state_id, "username_id": username_id};
+    token_request = json.dumps(token_request)
+    headers = {'Content-Type' : 'application/json'}
+    post_url = 'http://genapsys-data.appspot.com/rest/experimentState'
+    r = requests.post(post_url, token_request, headers=headers)
+
+
+def main():
+
+    date_time = time.strftime("%c")
+    logging.basicConfig(filename='/NAS/RunQA2/Logs/runQA2 Log ' + date_time + '.log',level=logging.DEBUG)
+    while True:
+        logging.info("Waiting for 5 minutes...")
+        print "Waiting for 5 minutes..."
+        time.sleep(600)
+        get_run_url = "http://genapsys-services.appspot.com/listOfRunsToBeProcessed?stateInclude=6&keywork=&intervalDays=5&stateExclude=8"
+        run_list = requests.get(get_run_url)
+        run_list = json.loads(run_list.content)
+
+        for run_id in run_list:
+            logging.info(run_id)
+            print run_id
+            try:
+
+                # Starting the analysis
+                store_experiment_state(run_id, 8, 1, 88)
+
+                # Data Digest
+                inf_url = "http://genapsys-services.appspot.com/getRunParamsByExperimentId?experimentId=" + run_id
+                run_inf = requests.get(inf_url)
+                run_inf = json.loads(run_inf.content)
+                beta_id = run_inf[1]
+                with open('../config/DigestJavaConfig.json') as json_data:
+                    dd_config = json.loads(json_data.read())
+
+                # Load and Save Pathes
+                load_path = os.path.join(dd_config["load"]["root"], beta_id, run_id, dd_config["load"]["path"])
+                save_path = os.path.join(dd_config["save"]["root"], beta_id,run_id, dd_config["save"]["path"])
+                logging.info("Load path: " + load_path)
+                logging.info("Save path: " + save_path)
+
+                # Create the save path if it doesn't exist
+                if not os.path.exists(save_path):
+                    os.makedirs(save_path)
+
+                dd_object = DigestJava.DataDigest(run_id, dd_config, load_path)
+                dd_json = DigestJava.ddObjtoJson(dd_object, dd_config)
+                dd_path = os.path.join(save_path, "DataDigest.json")
+                with open(dd_path, "w") as outjson:
+                    json.dump(dd_json, outjson)#, sort_keys=True, indent=4)
+                print "Data Digest OKAY"
+                logging.info("Data Digest OKAY")
+
+                # Digest Complete
+                store_experiment_state(run_id, 8, 3, 88)
+
+                # Report
+                run_id = [run_id]
+                beta_id = [beta_id]
+                rid_bid = zip(run_id,beta_id)
+                report_config_path = "/opt/runqa2/config/ReportJavaConfig.json"
+                rt = ReportJava.ReportTemp(report_config_path, rid_bid)
+                rt.create_report()
+                print "Run Report OKAY"
+                logging.info("Run Report OKAY")
+                #Report Complete
+                store_experiment_state(run_id, 8, 5, 88)
+
+            except:
+                print "RunQA2 falied for the run:"
+                print run_id
+                logging.info("RunQA2 falied for the run:")
+                logging.info(run_id)
+
+if __name__ == "__main__":
+    main()
